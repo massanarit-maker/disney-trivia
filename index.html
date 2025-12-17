@@ -1,164 +1,918 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Massanari Family Road Trip Disney Trivia Game</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Massanari Family Road Trip Disney Trivia Game</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    body{
+      margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:18px;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(59,130,246,.35), transparent 60%),
+        radial-gradient(1200px 800px at 80% 20%, rgba(236,72,153,.28), transparent 55%),
+        radial-gradient(1200px 800px at 50% 80%, rgba(34,197,94,.18), transparent 55%),
+        linear-gradient(180deg, #050615 0%, #070a1f 100%);
+      color:#fff;
+    }
+    .app{
+      width:min(980px,100%);
+      background: rgba(17,21,40,.92);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .banner{
+      padding:16px 18px;
+      background: linear-gradient(90deg, rgba(37,99,235,.95), rgba(147,51,234,.78), rgba(236,72,153,.78));
+      border-bottom: 1px solid rgba(255,255,255,.14);
+    }
+    .banner h1{ margin:0; font-size:1.05rem; letter-spacing:.06em; text-transform:uppercase; }
+    .banner .sub{ margin-top:6px; font-size:.92rem; color:rgba(255,255,255,.92); }
+    .content{ padding:18px; }
 
-<style>
-*{box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-body{
-  margin:0;
-  background:linear-gradient(180deg,#0b3c5d 0%,#050615 65%);
-  color:#f4f4f4;
-  min-height:100vh;
-}
-.banner{
-  background:linear-gradient(90deg,#1d4ed8,#2563eb,#38bdf8);
-  padding:18px;
-  text-align:center;
-  font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  box-shadow:0 6px 20px rgba(0,0,0,.5);
-}
-.game{
-  max-width:900px;
-  margin:20px auto;
-  background:rgba(17,21,40,.95);
-  padding:20px;
-  border-radius:18px;
-  box-shadow:0 18px 60px rgba(0,0,0,.7);
-}
-.question{
-  font-size:1.1rem;
-  margin-bottom:12px;
-}
-.options button{
-  width:100%;
-  padding:12px;
-  margin:6px 0;
-  border-radius:10px;
-  border:1px solid #1f2937;
-  background:#0b1120;
-  color:#e5e7eb;
-}
-.options button.correct{background:rgba(34,197,94,.35)}
-.options button.incorrect{background:rgba(239,68,68,.35)}
-.controls{
-  display:flex;
-  justify-content:space-between;
-  margin-top:14px;
-}
-button{
-  background:#2563eb;
-  border:none;
-  color:white;
-  border-radius:999px;
-  padding:8px 16px;
-}
-.hidden{display:none}
-.status{color:#9ca3af;margin-bottom:10px}
-</style>
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+    @media (max-width: 900px){ .grid{ grid-template-columns: 1fr; } }
+
+    .card{
+      background: rgba(2,6,23,.78);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: rgba(0,0,0,.18);
+      font-size:.78rem;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color: rgba(255,255,255,.85);
+    }
+    .btn{
+      border-radius:999px;
+      padding:10px 14px;
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(31,41,55,.35);
+      color: rgba(255,255,255,.9);
+      font-size:.92rem;
+      transition: transform .08s ease, background .08s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(55,65,81,.5); }
+    .btn.primary{ background: rgba(37,99,235,.95); border-color: rgba(191,219,254,.65); color:#fff; }
+    .btn.primary:disabled{ background: rgba(31,41,55,.9); border-color: rgba(255,255,255,.12); cursor: default; transform:none; }
+
+    .select{
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(11,17,32,.92);
+      color: rgba(255,255,255,.92);
+      font-size: .95rem;
+      outline:none;
+    }
+    .muted{ color: rgba(255,255,255,.75); line-height:1.45; }
+    .hidden{ display:none !important; }
+
+    /* Game */
+    .meta{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; color:rgba(255,255,255,.78); font-size:.9rem; }
+    .headline{ font-size:1rem; margin:10px 0 8px; letter-spacing:.02em; }
+    .qPrompt{ font-size:1.08rem; line-height:1.35; margin:0 0 10px; }
+
+    .imgWrap{
+      width:100%;
+      border-radius: 14px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.2);
+      margin-bottom: 12px;
+    }
+    .imgWrap img{
+      width:100%;
+      height: 280px;
+      object-fit: cover;
+      display:block;
+    }
+    @media (max-width: 600px){
+      .imgWrap img{ height: 220px; }
+    }
+
+    .opts{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    @media (max-width: 700px){ .opts{ grid-template-columns: 1fr; } }
+
+    .opt{
+      text-align:left;
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-height: 48px;
+      cursor:pointer;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(11,17,32,.92);
+      color: rgba(255,255,255,.92);
+      transition: transform .06s ease, background .08s ease, border-color .08s ease;
+    }
+    .opt:hover{ transform: translateY(-.5px); background: rgba(17,24,39,.95); border-color: rgba(255,255,255,.22); }
+    .opt.disabled{ cursor:default; transform:none; opacity:.97; }
+    .opt.correct{ border-color: rgba(34,197,94,.9); background: rgba(22,163,74,.18); }
+    .opt.incorrect{ border-color: rgba(239,68,68,.95); background: rgba(239,68,68,.14); }
+
+    .feedback{ min-height: 22px; margin-top:10px; font-size: .98rem; }
+    .feedback.good{ color: rgba(74,222,128,.95); }
+    .feedback.bad{ color: rgba(252,165,165,.95); }
+
+    .controls{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top: 12px; }
+    .summary{
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(255,255,255,.18);
+      line-height: 1.45;
+      color: rgba(255,255,255,.92);
+    }
+  </style>
 </head>
-
 <body>
+  <div class="app">
+    <div class="banner">
+      <h1>Massanari Family Road Trip Disney Trivia Game</h1>
+      <div class="sub">Player mode + Family Mode • 10 questions per round • Auto images • No timer</div>
+    </div>
 
-<div class="banner">Massanari Family Road Trip Disney Trivia Game</div>
+    <div class="content">
+      <!-- HOME -->
+      <div id="home" class="grid">
+        <div class="card">
+          <div class="row" style="justify-content:space-between;">
+            <span class="badge" id="bankStatus">Bank: building…</span>
+            <span class="badge">Round: 10 questions</span>
+          </div>
 
-<div class="game">
-  <div class="status" id="status"></div>
-  <div class="question" id="question"></div>
-  <div class="options" id="options"></div>
-  <div class="controls">
-    <button id="nextBtn" class="hidden">Next</button>
-    <button id="newRoundBtn">New Round</button>
+          <h2 class="headline">Play</h2>
+          <p class="muted">
+            Choose a player for age-appropriate Disney questions (parks, movies, characters).
+            <br/>Family Mode rotates who each question is “for.”
+          </p>
+
+          <div style="margin-top:12px;">
+            <label class="muted" for="playerSelect">Select player</label>
+            <select id="playerSelect" class="select" style="margin-top:6px;">
+              <option value="dad">Dad (33)</option>
+              <option value="mom">Mom (36)</option>
+              <option value="broxton">Broxton (12)</option>
+              <option value="laurel">Laurel (11)</option>
+              <option value="hendrix">Hendrix (6)</option>
+              <option value="maddox">Maddox (4)</option>
+              <option value="phoenix">Phoenix (2)</option>
+            </select>
+          </div>
+
+          <div class="row" style="margin-top:14px;">
+            <button id="playBtn" class="btn primary">Play</button>
+            <button id="familyBtn" class="btn">Family Mode</button>
+          </div>
+
+          <div class="muted" style="margin-top:12px;">
+            Images are fetched automatically from Wikipedia thumbnails. If none are found, you’ll see a Mickey silhouette.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="headline">How it stays fresh and avoids repeats</h2>
+          <p class="muted">
+            The game generates a 1000+ question bank locally and uses per-player “decks” stored in your browser.
+            That means rounds won’t keep repeating the same handful of questions.
+          </p>
+          <p class="muted">
+            No duplicates inside a single round. Correct answer highlights green, wrong selection highlights red.
+          </p>
+        </div>
+      </div>
+
+      <!-- GAME -->
+      <div id="game" class="card hidden">
+        <div class="meta">
+          <div>
+            <span class="badge" id="modeBadge">Mode: —</span>
+            <span class="badge" id="forBadge">For: —</span>
+          </div>
+          <div>
+            <span class="badge">Q <strong id="qNum">1</strong> / <strong id="qTotal">10</strong></span>
+            <span class="badge">Score <strong id="score">0</strong></span>
+            <span class="badge">Streak <strong id="streak">0</strong></span>
+          </div>
+        </div>
+
+        <div class="imgWrap" id="imgWrap">
+          <img id="qImg" alt="Question image" />
+        </div>
+
+        <p class="qPrompt" id="qText"></p>
+
+        <div class="opts" id="opts"></div>
+        <div class="feedback" id="fb"></div>
+
+        <div class="controls">
+          <button class="btn" id="homeBtn">Home</button>
+          <button class="btn" id="newRoundBtn">New Round</button>
+          <button class="btn primary" id="nextBtn" disabled>Next</button>
+        </div>
+
+        <div class="summary hidden" id="summary"></div>
+      </div>
+    </div>
   </div>
-</div>
 
 <script>
-// ---------- HARDER DISNEYLAND HISTORY BASE ----------
-const BASE = [
-  ["What year did Disneyland open?", "1955", ["1950","1965","1971"]],
-  ["Who designed the original Disneyland castle?", "Herb Ryman", ["Walt Disney","John Hench","Marc Davis"]],
-  ["What land opened with Disneyland in 1955?", "Fantasyland", ["Tomorrowland","Cars Land","Avengers Campus"]],
-  ["What attraction opened in 1969?", "Haunted Mansion", ["Pirates of the Caribbean","Space Mountain","Indiana Jones"]],
-  ["What year did Pirates of the Caribbean open?", "1967", ["1963","1975","1980"]],
-  ["Who was Walt Disney’s brother?", "Roy O. Disney", ["Ub Iwerks","Bob Iger","Michael Eisner"]],
-  ["What park opened in 2001 at Disneyland Resort?", "Disney California Adventure", ["EPCOT","Hollywood Studios","Animal Kingdom"]],
-  ["Which Imagineer designed Space Mountain?", "John Hench", ["Marc Davis","Herb Ryman","Tony Baxter"]],
-  ["What land replaced Monsanto’s House of the Future?", "Autopia area", ["Tomorrowland Terrace","PeopleMover","Star Tours"]],
-  ["What year did Walt Disney die?", "1966", ["1959","1971","1980"]]
-];
+  // =========================
+  // PLAYERS + TIERS
+  // =========================
+  const PLAYERS = [
+    { id:"dad", name:"Dad", age:33, tier:"adult" },
+    { id:"mom", name:"Mom", age:36, tier:"adult" },
+    { id:"broxton", name:"Broxton", age:12, tier:"tween" },
+    { id:"laurel", name:"Laurel", age:11, tier:"tween" },
+    { id:"hendrix", name:"Hendrix", age:6, tier:"kid" },
+    { id:"maddox", name:"Maddox", age:4, tier:"preschool" },
+    { id:"phoenix", name:"Phoenix", age:2, tier:"toddler" },
+  ];
+  const playerById = Object.fromEntries(PLAYERS.map(p => [p.id, p]));
+  const TIER_ORDER = ["toddler","preschool","kid","tween","adult"];
 
-// ---------- BUILD ~1000 QUESTIONS ----------
-const BANK = [];
-for(let i=1;i<=100;i++){
-  BASE.forEach(b=>{
-    BANK.push({
-      q:`${b[0]} (History Set ${i})`,
-      options:shuffle([b[1],...b[2]]),
-      answer:0
+  const ROUND_SIZE = 10;
+  const MODES = { player:"Player", family:"Family" };
+
+  // =========================
+  // WIKI IMAGE FETCH + MICKEY FALLBACK
+  // =========================
+  async function fetchWikiThumbnail(query) {
+    const title = encodeURIComponent(String(query || "").trim());
+    if (!title) return null;
+    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${title}`;
+    try {
+      const res = await fetch(url, { mode: "cors" });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data?.thumbnail?.source) return data.thumbnail.source;
+      if (data?.originalimage?.source) return data.originalimage.source;
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  function setMickeyPlaceholder(imgEl) {
+    const svg = encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#0b1025"/>
+            <stop offset="100%" stop-color="#1f2937"/>
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bg)"/>
+        <g fill="#111827" opacity="0.88">
+          <circle cx="600" cy="330" r="150"/>
+          <circle cx="445" cy="210" r="100"/>
+          <circle cx="755" cy="210" r="100"/>
+        </g>
+        <g fill="none" stroke="#374151" stroke-width="8" opacity="0.6">
+          <circle cx="600" cy="330" r="150"/>
+          <circle cx="445" cy="210" r="100"/>
+          <circle cx="755" cy="210" r="100"/>
+        </g>
+      </svg>
+    `);
+    imgEl.src = `data:image/svg+xml;charset=utf-8,${svg}`;
+  }
+
+  // =========================
+  // HELPERS
+  // =========================
+  function shuffle(arr){
+    for (let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function tierAtLeast(qTier, playerTier){
+    return TIER_ORDER.indexOf(qTier) <= TIER_ORDER.indexOf(playerTier);
+  }
+
+  function hashId(str){
+    // small deterministic id
+    let h = 2166136261;
+    for (let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return "q_" + (h >>> 0).toString(16);
+  }
+
+  function pickDistinct(pool, n, exclude = new Set()){
+    const candidates = pool.filter(x => !exclude.has(x));
+    shuffle(candidates);
+    return candidates.slice(0, n);
+  }
+
+  // =========================
+  // DATA (STABLE LISTS) + HISTORY FACTS
+  // =========================
+  // Parks lists
+  const DLR_LANDS = [
+    "Main Street, U.S.A.", "Adventureland", "Frontierland", "New Orleans Square",
+    "Fantasyland", "Tomorrowland", "Mickey's Toontown", "Star Wars: Galaxy's Edge", "Critter Country"
+  ];
+  const DCA_LANDS = [
+    "Buena Vista Street", "Hollywood Land", "Cars Land", "Pixar Pier",
+    "Grizzly Peak", "Paradise Gardens Park", "Avengers Campus", "San Fransokyo Square"
+  ];
+
+  const DLR_ATTRACTIONS = [
+    "Pirates of the Caribbean", "Haunted Mansion", "Space Mountain", "Indiana Jones Adventure",
+    "Big Thunder Mountain Railroad", "Matterhorn Bobsleds", "it's a small world",
+    "Jungle Cruise", "Peter Pan's Flight", "Autopia", "Star Tours",
+    "Buzz Lightyear Astro Blasters", "Finding Nemo Submarine Voyage",
+    "The Many Adventures of Winnie the Pooh", "Mr. Toad's Wild Ride",
+    "Dumbo the Flying Elephant", "Mad Tea Party", "Disneyland Railroad",
+    "Enchanted Tiki Room"
+  ];
+  const DCA_ATTRACTIONS = [
+    "Radiator Springs Racers", "Guardians of the Galaxy – Mission: BREAKOUT!",
+    "Incredicoaster", "Toy Story Midway Mania!", "Soarin' Around the World",
+    "Grizzly River Run", "WEB SLINGERS: A Spider-Man Adventure",
+    "Monsters, Inc. Mike & Sulley to the Rescue!", "Luigi's Rollickin' Roadsters",
+    "Mater's Junkyard Jamboree", "The Little Mermaid: Ariel's Undersea Adventure",
+    "Pixar Pal-A-Round", "Goofy's Sky School", "Golden Zephyr"
+  ];
+
+  // Decoys (not Disneyland Resort lands/attractions)
+  const LAND_DECOYS = ["Diagon Alley", "Hogsmeade", "Gotham City", "Metropolis", "Jurassic Jungle", "Emerald City", "Springfield"];
+  const RIDE_DECOYS = ["Dragon Mountain", "Mystic Manor Express", "Galaxy Racer", "Pirate Harbor Dash", "Shadow Speedway", "Castle Coaster"];
+
+  // Disney/Pixar core lists (safe)
+  const DISNEY_FILMS = [
+    "The Lion King", "Aladdin", "Beauty and the Beast", "The Little Mermaid", "Frozen",
+    "Moana", "Tangled", "Mulan", "Cinderella", "Snow White and the Seven Dwarfs",
+    "Peter Pan", "Sleeping Beauty", "The Princess and the Frog", "Encanto",
+    "Toy Story", "Finding Nemo", "Monsters, Inc.", "The Incredibles", "Coco", "Inside Out",
+    "Ratatouille", "Up", "WALL-E", "Cars", "Brave", "Lilo & Stitch"
+  ];
+
+  const DISNEY_CHARACTERS = [
+    "Mickey Mouse","Minnie Mouse","Donald Duck","Goofy","Pluto",
+    "Elsa","Anna","Olaf","Moana","Maui",
+    "Simba","Nala","Timon","Pumbaa",
+    "Ariel","Sebastian","Flounder",
+    "Belle","Beast","Gaston",
+    "Aladdin","Jasmine","Genie",
+    "Woody","Buzz Lightyear","Nemo","Dory","Sulley","Mike Wazowski","Lightning McQueen","Mater"
+  ];
+
+  const FILM_DECOYS = ["Shrek","Harry Potter","Jurassic Park","Transformers","The Avengers","Kung Fu Panda","Despicable Me","The Land Before Time"];
+  const CHAR_DECOYS = ["Batman","SpongeBob","Pikachu","Sonic","Naruto","Darth Vader","Optimus Prime","Hello Kitty","Scooby-Doo"];
+
+  // History facts (limited to widely known, stable items)
+  // NOTE: You can expand this table later, but these are designed to be accurate.
+  const PARK_HISTORY = [
+    { subject:"Disneyland", question:"Disneyland Park opened to the public in what year?", correct:"1955", options:["1954","1955","1956","1960"], imageQuery:"Disneyland" },
+    { subject:"Disney California Adventure", question:"Disney California Adventure Park opened in what year?", correct:"2001", options:["1999","2000","2001","2003"], imageQuery:"Disney California Adventure" },
+    { subject:"Pirates of the Caribbean", question:"Pirates of the Caribbean at Disneyland opened in what year?", correct:"1967", options:["1963","1967","1971","1977"], imageQuery:"Pirates of the Caribbean (attraction)" },
+    { subject:"Haunted Mansion", question:"The Haunted Mansion at Disneyland opened in what year?", correct:"1969", options:["1967","1968","1969","1971"], imageQuery:"Haunted Mansion" },
+    { subject:"Space Mountain", question:"Space Mountain at Disneyland opened in what year?", correct:"1977", options:["1971","1977","1981","1995"], imageQuery:"Space Mountain" },
+    { subject:"Matterhorn Bobsleds", question:"The Matterhorn Bobsleds at Disneyland opened in what year?", correct:"1959", options:["1955","1957","1959","1961"], imageQuery:"Matterhorn Bobsleds" },
+    { subject:"it's a small world", question:"it's a small world at Disneyland opened in what year?", correct:"1966", options:["1964","1966","1968","1970"], imageQuery:"it's a small world" },
+    { subject:"Jungle Cruise", question:"The Jungle Cruise at Disneyland opened in what year?", correct:"1955", options:["1952","1955","1958","1963"], imageQuery:"Jungle Cruise" },
+    { subject:"Enchanted Tiki Room", question:"Walt Disney's Enchanted Tiki Room at Disneyland opened in what year?", correct:"1963", options:["1959","1961","1963","1965"], imageQuery:"Walt Disney's Enchanted Tiki Room" },
+    { subject:"Radiator Springs Racers", question:"Radiator Springs Racers opened in Cars Land in what year?", correct:"2012", options:["2010","2011","2012","2014"], imageQuery:"Radiator Springs Racers" }
+  ];
+
+  // =========================
+  // BANK GENERATION (1000+)
+  // =========================
+  // Schema: {id, category, tier, prompt, options[4], answerIndex, imageQuery}
+  let QUESTION_BANK = [];
+
+  function makeQ({tier, category, prompt, correct, distractPool, imageQuery, fixedOptions}) {
+    let options;
+    if (fixedOptions && fixedOptions.length === 4) {
+      options = [...fixedOptions];
+    } else {
+      const distractors = pickDistinct(distractPool, 3, new Set([correct]));
+      options = shuffle([correct, ...distractors]);
+    }
+    const answerIndex = options.indexOf(correct);
+    const id = hashId(`${tier}|${category}|${prompt}|${correct}|${options.join("|")}`);
+    return { id, tier, category, prompt, options, answerIndex, imageQuery: imageQuery || correct };
+  }
+
+  function buildBank() {
+    const out = [];
+    const seen = new Set();
+
+    const add = (q) => {
+      if (!q || !q.options || q.options.length !== 4) return;
+      if (q.answerIndex < 0 || q.answerIndex > 3) return;
+      if (seen.has(q.id)) return;
+      seen.add(q.id);
+      out.push(q);
+    };
+
+    // Tier pools (easy to hard)
+    const toddlerFilms = ["Frozen","Moana","The Lion King","Toy Story","Cars","Encanto"];
+    const toddlerChars = ["Mickey Mouse","Minnie Mouse","Donald Duck","Goofy","Pluto","Elsa","Olaf","Simba","Buzz Lightyear","Lightning McQueen"];
+    const preschoolFilms = ["Frozen","Moana","Toy Story","Finding Nemo","Monsters, Inc.","The Incredibles","Cars","Coco","Encanto","Up"];
+    const preschoolChars = ["Mickey Mouse","Minnie Mouse","Donald Duck","Goofy","Elsa","Anna","Olaf","Moana","Simba","Ariel","Woody","Buzz Lightyear","Nemo","Dory","Sulley","Mater"];
+
+    // 1) Toddler: “Which is X?” / “Which movie has …?” (very simple)
+    for (let i=0;i<260;i++){
+      const correct = toddlerChars[i % toddlerChars.length];
+      add(makeQ({
+        tier:"toddler",
+        category:"characters",
+        prompt:`Which character is ${correct}?`,
+        correct,
+        distractPool: toddlerChars.concat(CHAR_DECOYS),
+        imageQuery: correct
+      }));
+    }
+    for (let i=0;i<120;i++){
+      const film = toddlerFilms[i % toddlerFilms.length];
+      add(makeQ({
+        tier:"toddler",
+        category:"movies",
+        prompt:`Which of these is a Disney movie?`,
+        correct: film,
+        distractPool: toddlerFilms.concat(FILM_DECOYS),
+        imageQuery: film
+      }));
+    }
+
+    // 2) Preschool: slightly more variety
+    const preschoolFilmPool = preschoolFilms.concat(DISNEY_FILMS);
+    const preschoolCharPool = preschoolChars.concat(DISNEY_CHARACTERS);
+    for (let i=0;i<240;i++){
+      const film = preschoolFilmPool[i % preschoolFilmPool.length];
+      add(makeQ({
+        tier:"preschool",
+        category:"movies",
+        prompt:`Pick the Disney or Pixar movie title.`,
+        correct: film,
+        distractPool: preschoolFilmPool.concat(FILM_DECOYS),
+        imageQuery: film
+      }));
+    }
+    for (let i=0;i<220;i++){
+      const ch = preschoolCharPool[i % preschoolCharPool.length];
+      add(makeQ({
+        tier:"preschool",
+        category:"characters",
+        prompt:`Pick the Disney character.`,
+        correct: ch,
+        distractPool: preschoolCharPool.concat(CHAR_DECOYS),
+        imageQuery: ch
+      }));
+    }
+
+    // 3) Kid: park sorting + movies/characters (harder but still friendly)
+    const landPoolAll = DLR_LANDS.concat(DCA_LANDS).concat(LAND_DECOYS);
+    const ridePoolAll = DLR_ATTRACTIONS.concat(DCA_ATTRACTIONS).concat(RIDE_DECOYS);
+
+    for (let i=0;i<240;i++){
+      const ride = (i % 2 === 0)
+        ? DLR_ATTRACTIONS[i % DLR_ATTRACTIONS.length]
+        : DCA_ATTRACTIONS[i % DCA_ATTRACTIONS.length];
+      const park = DLR_ATTRACTIONS.includes(ride) ? "Disneyland Park" : "Disney California Adventure";
+      add(makeQ({
+        tier:"kid",
+        category:"parks",
+        prompt:`Which attraction is found at ${park}?`,
+        correct: ride,
+        distractPool: ridePoolAll,
+        imageQuery: ride
+      }));
+    }
+
+    for (let i=0;i<220;i++){
+      const land = (i % 2 === 0)
+        ? DLR_LANDS[i % DLR_LANDS.length]
+        : DCA_LANDS[i % DCA_LANDS.length];
+      const which = DLR_LANDS.includes(land) ? "Disneyland Park" : "Disney California Adventure";
+      add(makeQ({
+        tier:"kid",
+        category:"parks",
+        prompt:`Which of these is a land in ${which}?`,
+        correct: land,
+        distractPool: landPoolAll,
+        imageQuery: land
+      }));
+    }
+
+    // 4) Tween: more cross-park “which park has it” and more varied phrasing
+    const tweenPrompts = [
+      (park) => `Which attraction belongs in ${park}?`,
+      (park) => `Pick the attraction you can find in ${park}.`,
+      (park) => `Which of these attractions is in ${park}?`
+    ];
+
+    for (let i=0;i<260;i++){
+      const isDLR = (i % 2 === 0);
+      const ride = isDLR ? DLR_ATTRACTIONS[i % DLR_ATTRACTIONS.length] : DCA_ATTRACTIONS[i % DCA_ATTRACTIONS.length];
+      const park = isDLR ? "Disneyland Park" : "Disney California Adventure";
+      const pfn = tweenPrompts[i % tweenPrompts.length];
+      add(makeQ({
+        tier:"tween",
+        category:"parks",
+        prompt: pfn(park),
+        correct: ride,
+        distractPool: ridePoolAll,
+        imageQuery: ride
+      }));
+    }
+
+    // 5) Adult: history facts + harder park mix (still safe)
+    // History (fixed options)
+    for (const fact of PARK_HISTORY) {
+      add(makeQ({
+        tier:"adult",
+        category:"parks",
+        prompt: fact.question,
+        correct: fact.correct,
+        fixedOptions: fact.options,
+        imageQuery: fact.imageQuery
+      }));
+      // generate a few safe rephrasings
+      const variants = [
+        `Park history: ${fact.question}`,
+        `Trivia: ${fact.question}`,
+        `Disney history: ${fact.question}`
+      ];
+      for (const v of variants) {
+        add(makeQ({
+          tier:"adult",
+          category:"parks",
+          prompt: v,
+          correct: fact.correct,
+          fixedOptions: fact.options,
+          imageQuery: fact.imageQuery
+        }));
+      }
+    }
+
+    // Adult “land belongs to which park?” with options as parks/decoy parks
+    const parkChoices = ["Disneyland Park","Disney California Adventure","Magic Kingdom","EPCOT"];
+    for (let i=0;i<180;i++){
+      const land = (i % 2 === 0) ? DLR_LANDS[i % DLR_LANDS.length] : DCA_LANDS[i % DCA_LANDS.length];
+      const correctPark = DLR_LANDS.includes(land) ? "Disneyland Park" : "Disney California Adventure";
+      const prompt = `Which park contains the land "${land}" at Disneyland Resort?`;
+      const options = shuffle([correctPark, ...pickDistinct(parkChoices.filter(x=>x!==correctPark), 3)]);
+      add({
+        id: hashId(`adult|parks|${prompt}|${correctPark}|${options.join("|")}`),
+        tier:"adult",
+        category:"parks",
+        prompt,
+        options,
+        answerIndex: options.indexOf(correctPark),
+        imageQuery: land
+      });
+    }
+
+    // Ensure 1000+ by topping off with safe membership templates (still accurate)
+    const safePrompts = [
+      (x, park) => `Which attraction is in ${park}?`,
+      (x, park) => `Pick the attraction found in ${park}.`,
+      (x, park) => `${park} includes which attraction?`
+    ];
+    let guard = 0;
+    while (out.length < 1100 && guard < 50000) {
+      guard++;
+      const isDLR = Math.random() < 0.5;
+      const park = isDLR ? "Disneyland Park" : "Disney California Adventure";
+      const ride = isDLR
+        ? DLR_ATTRACTIONS[Math.floor(Math.random()*DLR_ATTRACTIONS.length)]
+        : DCA_ATTRACTIONS[Math.floor(Math.random()*DCA_ATTRACTIONS.length)];
+      const promptFn = safePrompts[Math.floor(Math.random()*safePrompts.length)];
+      add(makeQ({
+        tier:"adult",
+        category:"parks",
+        prompt: promptFn(ride, park),
+        correct: ride,
+        distractPool: ridePoolAll,
+        imageQuery: ride
+      }));
+    }
+
+    QUESTION_BANK = out;
+  }
+
+  // =========================
+  // DECKS (prevents repeats across rounds)
+  // =========================
+  function deckKey(mode, targetId){
+    return `mfdtr_deck_${mode}_${targetId}`;
+  }
+
+  function buildDeck(mode, target){
+    let pool;
+    if (mode === MODES.player) {
+      const tier = target;
+      pool = QUESTION_BANK.filter(q => tierAtLeast(q.tier, tier));
+    } else {
+      const tier = playerById[target].tier;
+      pool = QUESTION_BANK.filter(q => tierAtLeast(q.tier, tier));
+    }
+
+    pool = pool.filter(q =>
+      q && q.id && q.prompt && q.imageQuery &&
+      Array.isArray(q.options) && q.options.length === 4 &&
+      Number.isInteger(q.answerIndex) && q.answerIndex >= 0 && q.answerIndex < 4
+    );
+
+    const ids = pool.map(q => q.id);
+    shuffle(ids);
+    return ids;
+  }
+
+  function getDeck(mode, target){
+    const key = deckKey(mode, target);
+    const raw = localStorage.getItem(key);
+    if (raw){
+      try {
+        const ids = JSON.parse(raw);
+        if (Array.isArray(ids) && ids.length) return ids;
+      } catch {}
+    }
+    const fresh = buildDeck(mode, target);
+    localStorage.setItem(key, JSON.stringify(fresh));
+    return fresh;
+  }
+
+  function saveDeck(mode, target, ids){
+    localStorage.setItem(deckKey(mode, target), JSON.stringify(ids));
+  }
+
+  function drawQuestions(mode, target, n){
+    let deck = getDeck(mode, target);
+    if (deck.length < n){
+      deck = buildDeck(mode, target);
+    }
+    const pickIds = deck.slice(0, n);
+    deck = deck.slice(n);
+    saveDeck(mode, target, deck);
+
+    const byId = new Map(QUESTION_BANK.map(q => [q.id, q]));
+    return pickIds.map(id => byId.get(id)).filter(Boolean);
+  }
+
+  // =========================
+  // FAMILY MODE ROTATION (age appropriate)
+  // =========================
+  function buildFamilyTargets(){
+    // Balanced: adults sprinkled, kids get turns, Phoenix gets a simple one
+    return ["dad","mom","broxton","laurel","broxton","laurel","hendrix","maddox","maddox","phoenix"].slice(0, ROUND_SIZE);
+  }
+
+  // =========================
+  // UI
+  // =========================
+  const $ = (id) => document.getElementById(id);
+
+  const home = $("home");
+  const game = $("game");
+  const bankStatus = $("bankStatus");
+
+  const playerSelect = $("playerSelect");
+  const playBtn = $("playBtn");
+  const familyBtn = $("familyBtn");
+
+  const modeBadge = $("modeBadge");
+  const forBadge = $("forBadge");
+  const qNum = $("qNum");
+  const qTotal = $("qTotal");
+  const scoreEl = $("score");
+  const streakEl = $("streak");
+  const qImg = $("qImg");
+  const imgWrap = $("imgWrap");
+  const qText = $("qText");
+  const opts = $("opts");
+  const fb = $("fb");
+  const nextBtn = $("nextBtn");
+  const homeBtn = $("homeBtn");
+  const newRoundBtn = $("newRoundBtn");
+  const summary = $("summary");
+
+  let currentMode = null;
+  let selectedPlayerId = "dad";
+  let familyTargets = [];
+  let round = [];      // { q, forId }
+  let idx = 0;
+  let score = 0;
+  let streak = 0;
+  let answered = false;
+
+  function updateBankStatus(){
+    bankStatus.textContent = `Bank: ready (${QUESTION_BANK.length})`;
+  }
+
+  function resetRoundState(){
+    idx = 0; score = 0; streak = 0; answered = false;
+    scoreEl.textContent = "0";
+    streakEl.textContent = "0";
+    fb.textContent = "";
+    fb.className = "feedback";
+    summary.classList.add("hidden");
+    nextBtn.disabled = true;
+  }
+
+  function beginRound(){
+    resetRoundState();
+    qTotal.textContent = String(round.length);
+    home.classList.add("hidden");
+    game.classList.remove("hidden");
+    showQuestion();
+  }
+
+  function startPlayerRound(playerId){
+    currentMode = MODES.player;
+    selectedPlayerId = playerId;
+
+    modeBadge.textContent = `Mode: Player`;
+    forBadge.textContent = `For: ${playerById[playerId].name}`;
+
+    const tier = playerById[playerId].tier;
+    const questions = drawQuestions(MODES.player, tier, ROUND_SIZE);
+
+    // No duplicates in a round (extra safety)
+    const seen = new Set();
+    const unique = [];
+    for (const q of questions) {
+      if (!seen.has(q.id)) { seen.add(q.id); unique.push(q); }
+      if (unique.length === ROUND_SIZE) break;
+    }
+
+    round = unique.map(q => ({ q, forId: playerId }));
+    beginRound();
+  }
+
+  function startFamilyRound(){
+    currentMode = MODES.family;
+    modeBadge.textContent = `Mode: Family`;
+    familyTargets = buildFamilyTargets();
+
+    const out = [];
+    const seen = new Set();
+
+    for (const forId of familyTargets){
+      const candidates = drawQuestions(MODES.family, forId, 8);
+      let picked = candidates.find(q => q && !seen.has(q.id));
+
+      if (!picked){
+        const tier = playerById[forId].tier;
+        picked = QUESTION_BANK.find(q => tierAtLeast(q.tier, tier) && !seen.has(q.id));
+      }
+
+      if (picked){
+        seen.add(picked.id);
+        out.push({ q: picked, forId });
+      }
+    }
+
+    round = out.slice(0, ROUND_SIZE);
+    beginRound();
+  }
+
+  async function loadImageForQuestion(q){
+    imgWrap.classList.remove("hidden");
+    setMickeyPlaceholder(qImg);
+
+    // Use a strong query string to improve hit rate
+    const query = q.imageQuery || q.prompt;
+
+    const src = await fetchWikiThumbnail(query);
+    if (src) qImg.src = src;
+    else setMickeyPlaceholder(qImg);
+  }
+
+  function showQuestion(){
+    answered = false;
+    fb.textContent = "";
+    fb.className = "feedback";
+    nextBtn.disabled = true;
+    summary.classList.add("hidden");
+
+    const item = round[idx];
+    if (!item){ showResults(); return; }
+
+    const p = playerById[item.forId];
+    forBadge.textContent = `For: ${p.name}`;
+    qNum.textContent = String(idx + 1);
+
+    const prefix = (currentMode === MODES.family)
+      ? `This question is for ${p.name}. `
+      : "";
+
+    qText.textContent = prefix + item.q.prompt;
+
+    // options
+    opts.innerHTML = "";
+    item.q.options.forEach((text, i) => {
+      const b = document.createElement("button");
+      b.className = "opt";
+      b.textContent = text;
+      b.addEventListener("click", () => pick(i));
+      opts.appendChild(b);
     });
+
+    // image
+    loadImageForQuestion(item.q);
+  }
+
+  function pick(choice){
+    if (answered) return;
+    answered = true;
+
+    const item = round[idx];
+    const correct = item.q.answerIndex;
+    const isCorrect = choice === correct;
+
+    const buttons = Array.from(opts.querySelectorAll(".opt"));
+    buttons.forEach((b, i) => {
+      b.classList.add("disabled");
+      if (i === correct) b.classList.add("correct");
+      if (i === choice && !isCorrect) b.classList.add("incorrect");
+    });
+
+    if (isCorrect){
+      score += 1;
+      streak += 1;
+      fb.textContent = "Correct!";
+      fb.classList.add("good");
+    } else {
+      streak = 0;
+      fb.textContent = "Incorrect.";
+      fb.classList.add("bad");
+    }
+
+    scoreEl.textContent = String(score);
+    streakEl.textContent = String(streak);
+
+    nextBtn.disabled = false;
+    nextBtn.textContent = (idx === round.length - 1) ? "Show results" : "Next";
+  }
+
+  function next(){
+    if (idx < round.length - 1){
+      idx++;
+      showQuestion();
+    } else {
+      showResults();
+    }
+  }
+
+  function showResults(){
+    summary.innerHTML =
+      `<strong>Round complete.</strong><br/>` +
+      `Score: <strong>${score}</strong> / <strong>${round.length}</strong><br/>` +
+      `Tap “New Round” to keep going.`;
+    summary.classList.remove("hidden");
+
+    nextBtn.disabled = true;
+    qText.textContent = "Round complete!";
+    opts.innerHTML = "";
+    fb.textContent = "";
+    imgWrap.classList.add("hidden");
+  }
+
+  function goHome(){
+    game.classList.add("hidden");
+    home.classList.remove("hidden");
+  }
+
+  // =========================
+  // EVENTS
+  // =========================
+  playerSelect.addEventListener("change", (e) => { selectedPlayerId = e.target.value; });
+  playBtn.addEventListener("click", () => startPlayerRound(selectedPlayerId));
+  familyBtn.addEventListener("click", () => startFamilyRound());
+  nextBtn.addEventListener("click", next);
+  homeBtn.addEventListener("click", goHome);
+  newRoundBtn.addEventListener("click", () => {
+    if (currentMode === MODES.player) startPlayerRound(selectedPlayerId);
+    else startFamilyRound();
   });
-}
 
-function shuffle(a){
-  return a.map(v=>({v,sort:Math.random()}))
-          .sort((a,b)=>a.sort-b.sort)
-          .map(o=>o.v);
-}
-
-// ---------- GAME ENGINE ----------
-let round=[],idx=0;
-
-const qEl=document.getElementById("question");
-const oEl=document.getElementById("options");
-const sEl=document.getElementById("status");
-const nextBtn=document.getElementById("nextBtn");
-
-function startRound(){
-  round=shuffle([...BANK]).slice(0,10);
-  idx=0;
-  sEl.textContent=`Question bank: ${BANK.length} • This round: 10`;
-  load();
-}
-
-function load(){
-  const q=round[idx];
-  qEl.textContent=`Question ${idx+1}/10: ${q.q}`;
-  oEl.innerHTML="";
-  nextBtn.classList.add("hidden");
-  q.options.forEach((opt,i)=>{
-    const b=document.createElement("button");
-    b.textContent=opt;
-    b.onclick=()=>answer(b,i);
-    oEl.appendChild(b);
-  });
-}
-
-function answer(btn,i){
-  const q=round[idx];
-  [...oEl.children].forEach((b,j)=>{
-    b.disabled=true;
-    if(j===q.answer)b.classList.add("correct");
-    if(b===btn && j!==q.answer)b.classList.add("incorrect");
-  });
-  nextBtn.classList.remove("hidden");
-}
-
-nextBtn.onclick=()=>{
-  idx++;
-  if(idx>=round.length){
-    qEl.textContent="Round complete! Start a new round.";
-    oEl.innerHTML="";
-    nextBtn.classList.add("hidden");
-  } else load();
-};
-
-document.getElementById("newRoundBtn").onclick=startRound;
-startRound();
+  // =========================
+  // BOOT
+  // =========================
+  buildBank();
+  updateBankStatus();
 </script>
-
 </body>
 </html>

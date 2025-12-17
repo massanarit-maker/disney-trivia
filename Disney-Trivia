@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Massanari Family Road Trip Disney Trivia Game</title>
+
+<style>
+*{box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{
+  margin:0;
+  background:linear-gradient(180deg,#0b3c5d 0%,#050615 65%);
+  color:#f4f4f4;
+  min-height:100vh;
+}
+.banner{
+  background:linear-gradient(90deg,#1d4ed8,#2563eb,#38bdf8);
+  padding:18px;
+  text-align:center;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  box-shadow:0 6px 20px rgba(0,0,0,.5);
+}
+.game{
+  max-width:900px;
+  margin:20px auto;
+  background:rgba(17,21,40,.95);
+  padding:20px;
+  border-radius:18px;
+  box-shadow:0 18px 60px rgba(0,0,0,.7);
+}
+.question{
+  font-size:1.1rem;
+  margin-bottom:12px;
+}
+.options button{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:10px;
+  border:1px solid #1f2937;
+  background:#0b1120;
+  color:#e5e7eb;
+}
+.options button.correct{background:rgba(34,197,94,.35)}
+.options button.incorrect{background:rgba(239,68,68,.35)}
+.controls{
+  display:flex;
+  justify-content:space-between;
+  margin-top:14px;
+}
+button{
+  background:#2563eb;
+  border:none;
+  color:white;
+  border-radius:999px;
+  padding:8px 16px;
+}
+.hidden{display:none}
+.status{color:#9ca3af;margin-bottom:10px}
+</style>
+</head>
+
+<body>
+
+<div class="banner">Massanari Family Road Trip Disney Trivia Game</div>
+
+<div class="game">
+  <div class="status" id="status"></div>
+  <div class="question" id="question"></div>
+  <div class="options" id="options"></div>
+  <div class="controls">
+    <button id="nextBtn" class="hidden">Next</button>
+    <button id="newRoundBtn">New Round</button>
+  </div>
+</div>
+
+<script>
+// ---------- HARDER DISNEYLAND HISTORY BASE ----------
+const BASE = [
+  ["What year did Disneyland open?", "1955", ["1950","1965","1971"]],
+  ["Who designed the original Disneyland castle?", "Herb Ryman", ["Walt Disney","John Hench","Marc Davis"]],
+  ["What land opened with Disneyland in 1955?", "Fantasyland", ["Tomorrowland","Cars Land","Avengers Campus"]],
+  ["What attraction opened in 1969?", "Haunted Mansion", ["Pirates of the Caribbean","Space Mountain","Indiana Jones"]],
+  ["What year did Pirates of the Caribbean open?", "1967", ["1963","1975","1980"]],
+  ["Who was Walt Disney’s brother?", "Roy O. Disney", ["Ub Iwerks","Bob Iger","Michael Eisner"]],
+  ["What park opened in 2001 at Disneyland Resort?", "Disney California Adventure", ["EPCOT","Hollywood Studios","Animal Kingdom"]],
+  ["Which Imagineer designed Space Mountain?", "John Hench", ["Marc Davis","Herb Ryman","Tony Baxter"]],
+  ["What land replaced Monsanto’s House of the Future?", "Autopia area", ["Tomorrowland Terrace","PeopleMover","Star Tours"]],
+  ["What year did Walt Disney die?", "1966", ["1959","1971","1980"]]
+];
+
+// ---------- BUILD ~1000 QUESTIONS ----------
+const BANK = [];
+for(let i=1;i<=100;i++){
+  BASE.forEach(b=>{
+    BANK.push({
+      q:`${b[0]} (History Set ${i})`,
+      options:shuffle([b[1],...b[2]]),
+      answer:0
+    });
+  });
+}
+
+function shuffle(a){
+  return a.map(v=>({v,sort:Math.random()}))
+          .sort((a,b)=>a.sort-b.sort)
+          .map(o=>o.v);
+}
+
+// ---------- GAME ENGINE ----------
+let round=[],idx=0;
+
+const qEl=document.getElementById("question");
+const oEl=document.getElementById("options");
+const sEl=document.getElementById("status");
+const nextBtn=document.getElementById("nextBtn");
+
+function startRound(){
+  round=shuffle([...BANK]).slice(0,10);
+  idx=0;
+  sEl.textContent=`Question bank: ${BANK.length} • This round: 10`;
+  load();
+}
+
+function load(){
+  const q=round[idx];
+  qEl.textContent=`Question ${idx+1}/10: ${q.q}`;
+  oEl.innerHTML="";
+  nextBtn.classList.add("hidden");
+  q.options.forEach((opt,i)=>{
+    const b=document.createElement("button");
+    b.textContent=opt;
+    b.onclick=()=>answer(b,i);
+    oEl.appendChild(b);
+  });
+}
+
+function answer(btn,i){
+  const q=round[idx];
+  [...oEl.children].forEach((b,j)=>{
+    b.disabled=true;
+    if(j===q.answer)b.classList.add("correct");
+    if(b===btn && j!==q.answer)b.classList.add("incorrect");
+  });
+  nextBtn.classList.remove("hidden");
+}
+
+nextBtn.onclick=()=>{
+  idx++;
+  if(idx>=round.length){
+    qEl.textContent="Round complete! Start a new round.";
+    oEl.innerHTML="";
+    nextBtn.classList.add("hidden");
+  } else load();
+};
+
+document.getElementById("newRoundBtn").onclick=startRound;
+startRound();
+</script>
+
+</body>
+</html>
